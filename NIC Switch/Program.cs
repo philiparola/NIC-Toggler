@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Management;
 
 namespace NIC_Switch
 {
@@ -10,7 +11,7 @@ namespace NIC_Switch
     {
         static void Main(string[] args)
         {
-            Console.WriteLine("Enable VPN or Home (the other will be disabled).");
+            /*Console.WriteLine("Enable VPN or Home (the other will be disabled).");
             string interfaceChoice = Console.ReadLine();
             interfaceChoice = interfaceChoice.ToLower();
             while (interfaceChoice != "vpn" && interfaceChoice != "home")
@@ -32,8 +33,43 @@ namespace NIC_Switch
                 Enable(interfaceChoice);
                 string altNIC = "VPN";
                 Disable(altNIC);
+            }*/
+
+            GetNames();
+        }
+
+        static void GetNames()
+        {
+            bool homeenabled = false;
+            SelectQuery wmiQuery = new SelectQuery("SELECT * FROM Win32_NetworkAdapter WHERE NetConnectionId != NULL");
+            ManagementObjectSearcher searchProcedure = new ManagementObjectSearcher(wmiQuery);
+            foreach (ManagementObject item in searchProcedure.Get())
+            {
+                if (((string)item["NetConnectionId"]) == "Home"  && (bool)item["NetEnabled"] == true)
+                {
+                    homeenabled = false;
+
+                    item.InvokeMethod("Disable", null);
+                }
+                else if (((string)item["NetConnectionId"]) == "Home")
+                {
+                    homeenabled = true;
+
+                    item.InvokeMethod("Enable", null);
+                }
             }
 
+            foreach (ManagementObject item in searchProcedure.Get())
+            {
+                if (((string)item["NetConnectionId"]) == "VPN" && homeenabled == true)
+                {
+                    item.InvokeMethod("Disable", null);
+                }
+                else if (((string)item["NetConnectionId"]) == "VPN")
+                {
+                    item.InvokeMethod("Enable", null);
+                }
+            }
         }
 
         //The following is shamelessly ripped from http://stackoverflow.com/questions/172875/how-to-disable-enable-network-connection-in-c-sharp
