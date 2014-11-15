@@ -12,10 +12,12 @@ namespace NIC_Switch
         {
             Console.WriteLine("Enable VPN or Home (the other will be disabled).");
             string interfaceChoice = Console.ReadLine();
-            while (interfaceChoice != "VPN" && interfaceChoice != "Home")
+            interfaceChoice = interfaceChoice.ToLower();
+            while (interfaceChoice != "vpn" && interfaceChoice != "home")
             {
                 Console.WriteLine("Type out the full adapter name.");
                 interfaceChoice = Console.ReadLine();
+                interfaceChoice = interfaceChoice.ToLower();
             }
 
             if (interfaceChoice == "VPN")
